@@ -27,9 +27,11 @@ class Sign(object):
             self.cursor.execute("INSERT INTO CUSTOMER VALUES('%s','%s','%s','%s','%s','%s', '%d', '%s')" % (cid, fname, lname, email, address, phone, 0, password))
             self.db.commit()
             print("Sucess.\n UserID:'%s'\n Email:'%s'\n" %(cid, email))
+            return cid
         except:
             self.db.rollback()
             print("Failed.\n")
+            return False
 
 
     def delete(self, cid):
@@ -52,10 +54,10 @@ class Sign(object):
 
 
 class Cart(object):
-    def __init__(self, Sign):
+    def __init__(self, cid):
         self.db =pymysql.connect(db = 'store', user = 'shiboyao', passwd = '1234')
         self.cursor = self.db.cursor()
-        self.CID = Sign.CID
+        self.CID = cid
         
         self.cursor.execute("SELECT MAX(CARTID) FROM CART WHERE CID = '%s' AND TSTATUS = 0" %self.CID)
         cartid = self.cursor.fetchall()
@@ -79,8 +81,9 @@ class Cart(object):
     def addproduct(self, pid, quant):
         self.cursor.execute("SELECT PPRICE FROM PRODUCT WHERE PID = '%s'" %pid)
         price = self.cursor.fetchall()[0][0]
+        print(price)
         try:
-            self.cursor.execute("INSERT INTO APPEARS_IN (CARTID, PID, QUANTITY, PRICESOLD) VALUES('%s','%s','%d','%f')" %(self.cartid, pid, quant, price))
+            self.cursor.execute("INSERT INTO APPEARS_IN VALUES (%s,%s,%s,%s)", (self.cartid, pid, quant, price))
             self.db.commit()
             return True
         except:
@@ -103,7 +106,87 @@ class Cart(object):
     def addoption(self):
         self.cursor.execute("SELECT SANAME FROM SHIP_ADDRESS WHERE CID = '%s'" %self.CID)
         return self.cursor.fetchall()
+               
+            
+    def ccoption(self):
+        self.cursor.execute("SELECT CCNUMBER FROM STORED_CARD WHERE CID = '%s'" %self.CID)
+        return self.cursor.fetchall()
+    
+    
+    def view(self):
+        try:
+            self.cursor.execute("SELECT P.PNAME, A.QUANTITY, P.PPRICE FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.CID = %s AND C.CARTID = %s AND A.PID = P.PID", (self.CID, self.cartid))
+            result = self.cursor.fetchall()
+            print(result)
+            return result
+        except:
+            print("Failed to view.\n")
+            return False
+            
+    def viewbytype(self, ptype):
+        if ptype != 'All':
+            try:
+                self.cursor.execute("SELECT P.PNAME, P.PID, P.DESCRIPTION, P.PPRICE FROM PRODUCT P WHERE P.PTYPE = '%s'" %ptype)
+                result = self.cursor.fetchall()
+                return result
+            except:
+                print("Fail to view.\n")
+                return False
+        else:
+            self.cursor.execute("SELECT P.PNAME, P.PID, P.DESCRIPTION, P.PPRICE FROM PRODUCT P")
+            result = self.cursor.fetchall()
+            return result
+    
+    def checkout(self, addname, ccnum):
+        try:
+            self.cursor.execute("UPDATE CART SET SANAME = %s, CCNUMBER = %s, TSTATUS = %s, TDATE = CURDATE() WHERE CID = %s AND CARTID = %s", (addname, ccnum, 1,self.CID, self.cartid))
+            self.db.commit()
+            return True
+        except:
+            self.db.rollback()
+            print("Failed to checkout.\n")
+            return False
+            
+            
+
+class User(object):
+    def __init__(self, cid):
+        self.db =pymysql.connect(db = 'store', user = 'shiboyao', passwd = '1234')
+        self.cursor = self.db.cursor()
+        self.CID = cid
         
+        
+    def viewprofile(self):
+        try:
+            self.cursor.execute("SELECT CID, FNAME, LNAME, EMAIL, ADDRESS, PHONE, STATUS FROM CUSTOMER WHERE CID = '%s'" %self.CID)
+            result = self.cursor.fetchall()
+            print(result)
+            return result
+        except:
+            print("Failed to view profile.\n")
+            return False
+            
+            
+    def update(self, fname, lname, email, address, phone, password):
+        try:
+            self.cursor.execute("UPDATE CUSTOMER SET FNAME = %s, LNAME = %s, EMAIL = %s, ADDRESS = %s, PHONE = %s, PASSWORD = %s WHERE CID = %s", (fname, lname, email, address, phone, password, self.CID))
+            self.db.commit()
+            return True
+        except:
+            self.db.rollback()
+            print("Fail to update.\n")
+            return False
+
+
+    def addoption(self):
+        self.cursor.execute("SELECT SANAME FROM SHIP_ADDRESS WHERE CID = '%s'" %self.CID)
+        return self.cursor.fetchall()
+               
+            
+    def ccoption(self):
+        self.cursor.execute("SELECT CCNUMBER FROM STORED_CARD WHERE CID = '%s'" %self.CID)
+        return self.cursor.fetchall()
+
         
     def addinsert(self, receipient, country, state, city, zipcode, street, snum, sname):
         try:
@@ -114,12 +197,8 @@ class Cart(object):
             self.db.rollback()
             print("Failed to add add.\n")
             return False
-            
-            
-    def ccoption(self):
-        self.cursor.execute("SELECT CCNUMBER FROM STORED_CARD WHERE CID = '%s'" %self.CID)
-        return self.cursor.fetchall()
-    
+                        
+
     
     def addcc(self, ccnum, secnum, owner, typ, billing, exp, stored):
         try:
@@ -133,49 +212,8 @@ class Cart(object):
             self.db.rollback()
             print("Failed to add cc.\n")
             return False
-    
-    
-    def view(self):
-        try:
-            self.cursor.execute("SELECT P.PNAME, A.QUANTITY, P.PPRICE FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.CID = '%s' AND A.PID = P.PID" %self.CID)
-            result = self.cursor.fetchall()
-            print(result)
-            return result
-        except:
-            print("Failed to view.\n")
-            return False
             
-    
-    def checkout(self, addname, ccnum):
-        try:
-            self.cursor.execute("UPDATE CART SET SANAME = '%s', CCNUMBER = '%s', TSTATUS = 1, TDATE = CURDATE() WHERE CID = '%s' AND CARTID = '%s'" %(addname, ccnum, self.CID, self.cartid))
-            self.db.commit()
-            return True
-        except:
-            self.db.rollback()
-            print("Failed to checkout.\n")
-            return False
-            
-            
-
-class User(object):
-    def __init__(self, Sign):
-        self.db =pymysql.connect(db = 'store', user = 'shiboyao', passwd = '1234')
-        self.cursor = self.db.cursor()
-        self.CID = Sign.CID
-        
-        
-    def viewprofile(self):
-        try:
-            self.cursor.execute("SELECT CID, FNAME, LNAME, EMAIL, ADDRESS, PHONE, STATUS FROM CUSTOMER WHERE CID = '%s'" %self.CID)
-            result = self.cursor.fetchall()
-            print(result[0])
-            return result[0]
-        except:
-            print("Failed to view profile.\n")
-            return False
-            
-            
+                        
     def viewhistory(self):
         self.cursor.execute("SELECT C.CARTID, C.SANAME, C.CCNUMBER, C.TSTATUS, C.TDATE, A.PID, A.QUANTITY, A.PRICESOLD, P.PTYPE, P.PNAME, P.DESCRIPTION FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND P.PID = A.PID AND C.CID = '%s'" %self.CID)
         result = self.cursor.fetchall()
@@ -205,11 +243,11 @@ class User(object):
         
         
         
-class admin(object):
-    def __init__(self, Sign):
-        self.db =pymysql.connect(db = 'store', user = 'root', passwd = 'wobuzhidao')
+class Admin(object):
+    def __init__(self):
+        self.db =pymysql.connect(db = 'store', user = 'shibo', passwd = '1234')
         self.cursor = self.db.cursor()
-        self.CID = Sign.CID
+        #self.CID = Sign.CID
         
         
     def processorder(self, cartid, status):
@@ -226,47 +264,70 @@ class admin(object):
         '''
         most frequent products
         '''
-        self.cursor.execute("SELECT SUM(A.QUANTITY), P.PNAME FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.TDATE BETWEEN '%s' AND '%s' AND A.PID = C.PID GROUP BY A.PID ORDER BY SUM(A.QUANTITY) DESC" %(date1, date2))
-        result = self.cursor.fetchall()[0]
-        return result
+        self.cursor.execute("SELECT SUM(A.QUANTITY), P.PNAME FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.TDATE BETWEEN '%s' AND '%s' AND A.PID = P.PID GROUP BY A.PID ORDER BY SUM(A.QUANTITY) DESC" %(date1, date2))
+        result = self.cursor.fetchall()
+        if len(result) != 0:
+            return result[0]
+        else:
+            return result
         
         
     def mostsold2(self, date1, date2):
         '''
         most popular to distinct customers
         '''
-        SELF.CURSOR.EXECUTE("SELECT COUNT(C.CID), P.PNAME FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.TDATE BETWEEN '%s' AND '%s' AND A.PID = P.PID GROUP BY A.PID ORDER BY COUNT(C.CID) DESC" %(date1, date2))
-        result = self.cursor.fetchall()[0]
-        return result
+        self.cursor.execute("SELECT COUNT(C.CID), P.PNAME FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.TDATE BETWEEN '%s' AND '%s' AND A.PID = P.PID GROUP BY A.PID ORDER BY COUNT(C.CID) DESC" %(date1, date2))
+        result = self.cursor.fetchall()
+        if len(result) != 0:
+            return result[0]
+        else:
+            return result
         
         
-    def ten_customers(self):
+    def ten_customer(self, date1, date2):
         '''
         spent most money
         '''
-        SELF.CURSOR.EXECUTE("SELECT C.CID, CUSTOMER.FNAME, SUM(A.PRICESOLD*A.QUANTITY) FROM CUSTOMER, CART C, APPEARS_IN A, PRODUCT P WHERE C.CID = CUSTOMER.CID AND C.CARTID = A.CARTID AND C.TDATE BETWEEN '%s' AND '%s' AND A.PID = P.PID GROUP BY C.CID ORDER BY SUM(A.PRICESOLD*A.QUANTITY) DESC" %(date1, date2))
+        self.cursor.execute("SELECT C.CID, CUSTOMER.FNAME, SUM(A.PRICESOLD*A.QUANTITY) FROM CUSTOMER, CART C, APPEARS_IN A, PRODUCT P WHERE C.CID = CUSTOMER.CID AND C.CARTID = A.CARTID AND C.TDATE BETWEEN '%s' AND '%s' AND A.PID = P.PID GROUP BY C.CID ORDER BY SUM(A.PRICESOLD*A.QUANTITY) DESC" %(date1, date2))
         result = self.cursor.fetchall()
         return result[:min(10, len(result))]
         
         
-    def five_zip(self):
+    def five_zip(self, date1, date2):
         '''
         shipments made
         '''
-        SELF.CURSOR.EXECUTE("SELECT S.ZIP, COUNT(*) FROM CART C, SHIP_ADDRESS S WHERE C.SANAME = S.SANAME  AND C.TDATE BETWEEN '%s' AND '%s' GROUP BY S.ZIP ORDER BY COUNT(*) DESC" %(date1, date2))
+        self.cursor.execute("SELECT S.ZIP, COUNT(*) FROM CART C, SHIP_ADDRESS S WHERE C.SANAME = S.SANAME  AND C.TDATE BETWEEN '%s' AND '%s' GROUP BY S.ZIP ORDER BY COUNT(*) DESC" %(date1, date2))
         result = self.cursor.fetchall()
         return result[:min(5, len(result))]
         
         
-    def avg_price(self):
+    def avg_price(self, date1, date2):
         '''
         per product type, desktop, laptop, printer
         '''
-        SELF.CURSOR.EXECUTE("SELECT P.PTYPE, AVG(A.PRICESOLD) FROM CART C, PRODUCT P, APPEARS_IN A WHERE C.CARTID = A.CARTID AND A.PID = P.PID AND C.TDATE BETWEEN '%s' AND '%s' GROUP BY P.PTYPE ORDER BY AVG(A.PRICESOLD) DESC" %(date1, date2))
+        self.cursor.execute("SELECT P.PTYPE, AVG(A.PRICESOLD) FROM CART C, PRODUCT P, APPEARS_IN A WHERE C.CARTID = A.CARTID AND A.PID = P.PID AND C.TDATE BETWEEN '%s' AND '%s' GROUP BY P.PTYPE" %(date1, date2))
         result = self.cursor.fetchall()
-        return result
+        return result 
         
 
-        
+
+def tupleMsg(t):
+    if t == False or len(t) == 0:
+        return "Nothing."
+    else:
+        msg = str()
+        if t[0] != tuple:
+            for m in t:
+                msg = msg + '\n\n' + str(m)
+        else:
+            for m in t:
+                line = str()
+                for n in m:
+                    line = line + ' ' + str(n)
+                msg = msg + '\n\n' + line
+                
+        return msg 
+            
         
     

@@ -4,33 +4,10 @@ from database import Sign
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
+        Dialog.setObjectName("Sign Up")
         Dialog.setFixedSize(638, 441)
-        Dialog.setStyleSheet("QDialog{background-color:\n"
-"\n"
-"qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 178, 102, 255), stop:0.55 rgba(235, 148, 61, 255), stop:0.98 rgba(0, 0, 0, 255), stop:1 rgba(0, 0, 0, 0))}\n"
-"\n"
-"QLineEdit{\n"
-"background-color:rgb(170, 255, 127)\n"
-"\n"
-"}\n"
-"\n"
-"QLabel#label_Heading{\n"
-"font: 75 25pt \"Century Schoolbook L\";\n"
-"\n"
-"}\n"
-"\n"
-"\n"
-"QLabel{\n"
-"font: 75 italic 14pt \"Century Schoolbook L\";\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton{\n"
-"    background-color:qradialgradient(spread:repeat, cx:0.5, cy:0.5, radius:0.077, fx:0.5, fy:0.5, stop:0 rgba(0, 169, 255, 147), stop:0.497326 rgba(0, 0, 0, 147), stop:1 rgba(0, 169, 255, 147));\n"
-"color:rgb(255, 255, 255)\n"
-"}\n"
-"")
+
+
         self.label_1 = QtWidgets.QLabel(Dialog)
         self.label_1.setGeometry(QtCore.QRect(110, 150, 180, 21))
         self.label_1.setObjectName("label1")
@@ -126,11 +103,12 @@ class Ui_Dialog(object):
         else:
             if(self.checkPassword(password,password2)):
                 Registration = Sign()
-                Registration.signup(fname,lname,email,address, phone, password)
-                self.showMessage("Success","Registration successul")
-                self.clearField()
-            else:
-                self.showMessage("Error","Passwords doesn't match")
+                new_cid = Registration.signup(fname,lname,email,address, phone, password)
+                if new_cid != False:
+                    self.showMessage("Success","CID:"+new_cid)
+                    self.clearField()
+                else:
+                    self.showMessage("Error","Something is wrong.")
        
     def showMessage(self,title,msg):
         msgBox = QtWidgets.QMessageBox()
@@ -142,7 +120,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Sign Up"))
         self.label_1.setText(_translate("Dialog", "First Name:"))
         self.label_2.setText(_translate("Dialog", "Last Name:"))
         self.label_3.setText(_translate("Dialog", "Email:"))

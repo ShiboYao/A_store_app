@@ -1,40 +1,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-#import sys
-#sys.path.append("Ducoments/CS631/proj/gui")
 from database import Sign #importing database.py
-from home import Ui_MainWindow
 from signup import Ui_Dialog
+from admin_view import Ui_Dialog_admin
+from user import Ui_Dialog_user
 
 
 class Ui_Dialog2(object):
     def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
+        Dialog.setObjectName("Log In")
         Dialog.setFixedSize(597, 356)
-        Dialog.setStyleSheet("QDialog{background-color:\n"
-"\n"
-"qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 178, 102, 255), stop:0.55 rgba(235, 148, 61, 255), stop:0.98 rgba(0, 0, 0, 255), stop:1 rgba(0, 0, 0, 0))}\n"
-"\n"
-"QLineEdit{\n"
-"background-color:rgb(170, 255, 127)\n"
-"\n"
-"}\n"
-"\n"
-"QLabel#label_Heading{\n"
-"font: 75 25pt \"Century Schoolbook L\";\n"
-"\n"
-"}\n"
-"\n"
-"\n"
-"QLabel{\n"
-"font: 75 italic 14pt \"Century Schoolbook L\";\n"
-"\n"
-"}\n"
-"\n"
-"QPushButton{\n"
-"    background-color:qradialgradient(spread:repeat, cx:0.5, cy:0.5, radius:0.077, fx:0.5, fy:0.5, stop:0 rgba(0, 169, 255, 147), stop:0.497326 rgba(0, 0, 0, 147), stop:1 rgba(0, 169, 255, 147));\n"
-"color:rgb(255, 255, 255)\n"
-"}\n"
-"")
+
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(130, 160, 131, 21))
         self.label.setObjectName("label")
@@ -72,18 +47,24 @@ class Ui_Dialog2(object):
 
     def retranslateUi(self, Dialog): # ok
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Log In"))
         self.label.setText(_translate("Dialog", "CID:"))
         self.label_2.setText(_translate("Dialog", "Password:"))
         self.btnLogin.setText(_translate("Dialog", "Login"))
         self.btnSignup.setText(_translate("Dialog", "SignUp"))
         self.label_Heading.setText(_translate("Dialog", "Nutley Computer"))
         
-    def welcomePage(self): # revising
-        self.homWindow = QtWidgets.QMainWindow()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self.homWindow)
-        self.homWindow.show()
+    def user_page(self, cid): # revising
+        self.userDialog = QtWidgets.QDialog()
+        self.ui = Ui_Dialog_user()
+        self.ui.setupUi(self.userDialog, cid)
+        self.userDialog.show()
+        
+    def admin_page(self):
+        self.adminDialog = QtWidgets.QDialog()
+        self.ui = Ui_Dialog_admin()
+        self.ui.setupUi(self.adminDialog)
+        self.adminDialog.show()
         
     def loginCheck(self): # ok
         cid = self.txtCID.text()
@@ -91,7 +72,10 @@ class Ui_Dialog2(object):
         getDb = Sign()        
         result = getDb.login(cid,password)
         if(result):
-            self.welcomePage()
+            if cid == '100000001':
+                self.admin_page()
+            else:
+                self.user_page(cid)
             self.clearField()
             print(result)
         else:
