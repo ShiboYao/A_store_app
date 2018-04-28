@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from database import Cart, tupleMsg
+from onetimecard import Ui_Dialog_updatecc
 import sys
 
 
@@ -84,6 +85,11 @@ class Ui_Dialog_shop(object):
         self.btncheckout.setGeometry(QtCore.QRect(460, 300, 120, 30))
         self.btncheckout.setObjectName("btncheckout")
         self.btncheckout.clicked.connect(self.checkoutButton)
+        
+        self.btnonetime = QtWidgets.QPushButton(Dialog)
+        self.btnonetime.setGeometry(QtCore.QRect(340, 300, 120, 30))
+        self.btnonetime.setObjectName("btnonetime")
+        self.btnonetime.clicked.connect(self.onetimeButton)
                 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -108,7 +114,7 @@ class Ui_Dialog_shop(object):
         self.btnviewpay.setText(_translate("Dialog", "View Payment"))
         self.btnviewshipadd.setText(_translate("Dialog", "View ShipAdd"))
         self.btncheckout.setText(_translate("Dialog", "Check Out"))
-        
+        self.btnonetime.setText(_translate("Dialog", "One Time Pay"))        
                                         
         
     def viewButton(self):
@@ -160,7 +166,12 @@ class Ui_Dialog_shop(object):
         r = cart.checkout(addname, ccnumber)
         if r == True:
             self.showMessage("Transaction", "Order Placed.")   
-        
+    
+    def onetimeButton(self):
+        self.updateDialog = QtWidgets.QDialog()
+        self.ui = Ui_Dialog_updatecc()
+        self.ui.setupUi(self.updateDialog, self.CID)
+        self.updateDialog.show()           
                       
     def showMessage(self,title,msg):
         msgBox = QtWidgets.QMessageBox()

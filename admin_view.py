@@ -6,7 +6,7 @@ import sys
 class Ui_Dialog_admin(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Admin")
-        Dialog.setFixedSize(597, 356)
+        Dialog.setFixedSize(600, 400)
         
         self.label1 = QtWidgets.QLabel(Dialog)
         self.label1.setGeometry(QtCore.QRect(260, 110, 191, 27))
@@ -54,11 +54,77 @@ class Ui_Dialog_admin(object):
         self.r5.condition = "Average Price"
         self.r5.clicked.connect(self.on_radio_button_clicked)
         self.r5.setGeometry(QtCore.QRect(20, 240, 151, 21))
+
+        self.label = QtWidgets.QLabel(Dialog)
+        self.label.setGeometry(QtCore.QRect(300, 260, 100, 20))
+        self.label.setObjectName("label")
         
+        self.txtview = QtWidgets.QLineEdit(Dialog)
+        self.txtview.setGeometry(QtCore.QRect(360, 260, 100, 20))
+        self.txtview.setObjectName("view")
+
+        self.labelnew = QtWidgets.QLabel(Dialog)
+        self.labelnew.setGeometry(QtCore.QRect(180, 300, 100, 20))
+        self.labelnew.setObjectName("labelnew")
+        
+        self.txtnew = QtWidgets.QLineEdit(Dialog)
+        self.txtnew.setGeometry(QtCore.QRect(260, 300, 30, 20))
+        self.txtnew.setObjectName("new")
+                
+        self.btnlookup = QtWidgets.QPushButton(Dialog)
+        self.btnlookup.setGeometry(QtCore.QRect(460, 260, 80, 20))
+        self.btnlookup.setObjectName("btnlookup")
+        self.btnlookup.clicked.connect(self.lookupButton)
+
+        self.labelprocess = QtWidgets.QLabel(Dialog)
+        self.labelprocess.setGeometry(QtCore.QRect(300, 300, 100, 20))
+        self.labelprocess.setObjectName("labelprocess")
+        
+        self.txtprocess = QtWidgets.QLineEdit(Dialog)
+        self.txtprocess.setGeometry(QtCore.QRect(360, 300, 100, 20))
+        self.txtprocess.setObjectName("process")        
+
+        self.btnprocess = QtWidgets.QPushButton(Dialog)
+        self.btnprocess.setGeometry(QtCore.QRect(460, 300, 80, 20))
+        self.btnprocess.setObjectName("btnprocess")
+        self.btnprocess.clicked.connect(self.processButton)
+                
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
-        
 
+       
+    def retranslateUi(self, Dialog): # ok
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Admin"))
+        self.label1.setText(_translate("Dialog", "Date1:"))
+        self.label2.setText(_translate("Dialog", "Date2:"))
+        self.r1.setText(_translate("Dialog", "Sold by Quant"))
+        self.r2.setText(_translate("Dialog", "Sold by Customer"))
+        self.r3.setText(_translate("Dialog", "Ten Customer"))
+        self.r4.setText(_translate("Dialog", "Five Zip"))
+        self.r5.setText(_translate("Dialog", "Average Price"))       
+        self.labelprocess.setText(_translate("Dialog", "Order No.:"))         
+        self.label.setText(_translate("Dialog", "Status:"))         
+        self.labelnew.setText(_translate("Dialog", "New Status:"))                 
+        self.btnprocess.setText(_translate("Dialog", "Process"))
+        self.btnlookup.setText(_translate("Dialog", "Look up"))
+
+    def lookupButton(self):
+        status = self.txtview.text()
+        admin = Admin()
+        r = admin.viewbystatus(status)     
+        self.showMessage(tupleMsg(r))
+
+    def processButton(self):
+        ordernum = self.txtprocess.text()
+        status = self.txtnew.text()
+        admin = Admin()
+        r = admin.processorder(ordernum, status)   
+        if r:  
+            self.showMessage("Order processed.")
+        else:
+            self.showMessage("Failed to process.")    
+            
     def on_radio_button_clicked(self):
         Administration = Admin()
         date1 = self.txtdate1.text()
@@ -85,17 +151,7 @@ class Ui_Dialog_admin(object):
         msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msgBox.exec_()
        
-       
-    def retranslateUi(self, Dialog): # ok
-        _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Admin"))
-        self.label1.setText(_translate("Dialog", "Date1:"))
-        self.label2.setText(_translate("Dialog", "Date2:"))
-        self.r1.setText(_translate("Dialog", "Sold by Quant"))
-        self.r2.setText(_translate("Dialog", "Sold by Customer"))
-        self.r3.setText(_translate("Dialog", "Ten Customer"))
-        self.r4.setText(_translate("Dialog", "Five Zip"))
-        self.r5.setText(_translate("Dialog", "Average Price"))
+
         
 
 if __name__ == "__main__":
@@ -103,7 +159,7 @@ if __name__ == "__main__":
 
     
     Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
+    ui = Ui_Dialog_admin()
     ui.setupUi(Dialog)
 
     Dialog.show()

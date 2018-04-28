@@ -279,9 +279,9 @@ class Ui_Dialog_updateshipadd(object):
     def clearField(self):
         self.txtreceiver.setText(None)
         self.txtcountry.setText(None)
-        self.txtestate.setText(None)
+        self.txtstate.setText(None)
         self.txtcity.setText(None)
-        self.txtzipcode.setText(None)
+        self.txtzip.setText(None)
         self.txtstreet.setText(None)
         self.txtsnumber.setText(None)
         self.txtsname.setText(None)
@@ -409,7 +409,7 @@ if __name__ == "__main__":
     
     Dialog = QtWidgets.QDialog()
     ui = Ui_Dialog_user()
-    ui.setupUi(Dialog, '100000001')
+    ui.setupUi(Dialog, '100000003')
 
     Dialog.show()
 

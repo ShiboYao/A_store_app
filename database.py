@@ -80,16 +80,20 @@ class Cart(object):
  
     def addproduct(self, pid, quant):
         self.cursor.execute("SELECT PPRICE FROM PRODUCT WHERE PID = '%s'" %pid)
-        price = self.cursor.fetchall()[0][0]
-        print(price)
-        try:
-            self.cursor.execute("INSERT INTO APPEARS_IN VALUES (%s,%s,%s,%s)", (self.cartid, pid, quant, price))
-            self.db.commit()
-            return True
-        except:
-            self.db.rollback()
-            print("Failed to insert in appears_in.\n")
+        r = self.cursor.fetchall()
+        if not r:
+            print("PID not exist.")
             return False
+        else:
+            price = r[0][0]
+            try:
+                self.cursor.execute("INSERT INTO APPEARS_IN VALUES (%s,%s,%s,%s)", (self.cartid, pid, quant, price))
+                self.db.commit()
+                return True
+            except:
+                self.db.rollback()
+                print("Failed to insert in appears_in.\n")
+                return False
             
             
     def deleteproduct(self, pid):
@@ -248,7 +252,14 @@ class Admin(object):
         self.db =pymysql.connect(db = 'store', user = 'shibo', passwd = '1234')
         self.cursor = self.db.cursor()
         #self.CID = Sign.CID
-        
+
+
+    def viewbystatus(self, status):
+        self.cursor.execute("SELECT C.CARTID, C.TSTATUS, C.TDATE FROM CART C WHERE C.TSTATUS = %s" ,(status))
+        result = self.cursor.fetchall()
+        print(result)
+        return result
+                
         
     def processorder(self, cartid, status):
         try:
