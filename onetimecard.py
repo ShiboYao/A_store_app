@@ -7,7 +7,7 @@ import sys
 class Ui_Dialog_updatecc(object):
     def setupUi(self, Dialog, cid):
         Dialog.setObjectName("One Time Payment")
-        Dialog.setFixedSize(597, 500)
+        Dialog.setFixedSize(600, 500)
         self.CID = cid
         
         self.label_1 = QtWidgets.QLabel(Dialog)

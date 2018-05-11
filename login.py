@@ -8,7 +8,7 @@ from user import Ui_Dialog_user
 class Ui_Dialog2(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Log In")
-        Dialog.setFixedSize(597, 356)
+        Dialog.setFixedSize(600, 400)
 
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(130, 160, 131, 21))
@@ -20,23 +20,23 @@ class Ui_Dialog2(object):
         self.txtCID.setGeometry(QtCore.QRect(300, 160, 191, 27))
         self.txtCID.setObjectName("txtUsername")
         self.txtPassword = QtWidgets.QLineEdit(Dialog)
-        ################## make the password invisible ############
+
         self.txtPassword.setEchoMode(QtWidgets.QLineEdit.Password)
-        ###########################################################
+
         self.txtPassword.setGeometry(QtCore.QRect(300, 190, 191, 27))
         self.txtPassword.setObjectName("txtPassword")
         self.btnLogin = QtWidgets.QPushButton(Dialog)
         self.btnLogin.setGeometry(QtCore.QRect(210, 250, 71, 41))
         self.btnLogin.setObjectName("btnLogin")
-        #################### Login Button funtion #######################
+
         self.btnLogin.clicked.connect(self.loginCheck)
-        #################################################################
+
         self.btnSignup = QtWidgets.QPushButton(Dialog)
         self.btnSignup.setGeometry(QtCore.QRect(290, 250, 81, 41))
         self.btnSignup.setObjectName("btnSignup")
-        #################### SignUp Button #############################
+
         self.btnSignup.clicked.connect(self.signupButton)
-        ################################################################
+
         self.label_Heading = QtWidgets.QLabel(Dialog)
         self.label_Heading.setGeometry(QtCore.QRect(150, 90, 381, 51))
         self.label_Heading.setObjectName("label_Heading")

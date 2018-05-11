@@ -6,7 +6,7 @@ db = database.Sign()
 
 
 
-db.login('100000001', 'wobuzhidao')
+db.login('100000003', '123')
 
 user = database.User(db)
 

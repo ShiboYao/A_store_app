@@ -86,14 +86,27 @@ class Cart(object):
             return False
         else:
             price = r[0][0]
-            try:
-                self.cursor.execute("INSERT INTO APPEARS_IN VALUES (%s,%s,%s,%s)", (self.cartid, pid, quant, price))
-                self.db.commit()
-                return True
-            except:
-                self.db.rollback()
-                print("Failed to insert in appears_in.\n")
-                return False
+        self.cursor.execute("SELECT CID FROM SILVER_AND_ABOVE")
+        above = self.cursor.fetchall()
+        r1 = ()
+        if (self.CID,) in above:
+            self.cursor.execute("SELECT OFFERPRICE FROM OFFER_PRODUCT WHERE PID = '%s'" %pid)
+        else :
+            self.cursor.execute("SELECT PPRICE FROM PRODUCT WHERE PID = '%s'" %pid)
+        r1 = self.cursor.fetchall()
+        if r1:
+            price = r1[0][0]
+
+        try:
+            self.cursor.execute("INSERT INTO APPEARS_IN VALUES (%s,%s,%s,%s)", (self.cartid, pid, quant, price))
+            self.db.commit()
+            return True
+        except:
+            self.db.rollback()
+            print("Failed to insert in appears_in.\n")
+            return False
+
+            
             
             
     def deleteproduct(self, pid):
@@ -117,17 +130,25 @@ class Cart(object):
         return self.cursor.fetchall()
     
     
-    def view(self):
+    def view(self): ## view cart
         try:
-            self.cursor.execute("SELECT P.PNAME, A.QUANTITY, P.PPRICE FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.CID = %s AND C.CARTID = %s AND A.PID = P.PID", (self.CID, self.cartid))
+            self.cursor.execute("SELECT P.PNAME, A.QUANTITY, A.PRICESOLD FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND C.CID = %s AND C.CARTID = %s AND A.PID = P.PID", (self.CID, self.cartid))
             result = self.cursor.fetchall()
-            print(result)
             return result
         except:
-            print("Failed to view.\n")
+            print("Failed to FETCH REGULAR.\n")
             return False
             
-    def viewbytype(self, ptype):
+
+            
+    def viewbytype(self, ptype): ## view product
+        try:
+            self.cursor.execute("SELECT CID FROM SILVER_AND_ABOVE")
+            above = self.cursor.fetchall()
+            print(above)
+        except:
+            print("Failed to search silver and above.\n")
+            
         if ptype != 'All':
             try:
                 self.cursor.execute("SELECT P.PNAME, P.PID, P.DESCRIPTION, P.PPRICE FROM PRODUCT P WHERE P.PTYPE = '%s'" %ptype)
@@ -139,7 +160,17 @@ class Cart(object):
         else:
             self.cursor.execute("SELECT P.PNAME, P.PID, P.DESCRIPTION, P.PPRICE FROM PRODUCT P")
             result = self.cursor.fetchall()
-            return result
+            if (self.CID,) in above:
+                try:
+                    self.cursor.execute("SELECT * FROM OFFER_PRODUCT")
+                    r = self.cursor.fetchall()
+                except:
+                    print("Failed to get offer.\n")
+                print(result,r)
+                return result+r
+            else:
+                return result
+    
     
     def checkout(self, addname, ccnum):
         try:
@@ -221,8 +252,10 @@ class User(object):
     def viewhistory(self):
         self.cursor.execute("SELECT C.CARTID, C.SANAME, C.CCNUMBER, C.TSTATUS, C.TDATE, A.PID, A.QUANTITY, A.PRICESOLD, P.PTYPE, P.PNAME, P.DESCRIPTION FROM CART C, APPEARS_IN A, PRODUCT P WHERE C.CARTID = A.CARTID AND P.PID = A.PID AND C.CID = '%s'" %self.CID)
         result = self.cursor.fetchall()
-        print(result)
-        return result
+        self.cursor.execute("SELECT C.CARTID, SUM(A.PRICESOLD*A.QUANTITY) FROM CART C, APPEARS_IN A WHERE C.CARTID = A.CARTID AND C.CID = '%s' GROUP BY C.CARTID"  %self.CID)
+        r2 = self.cursor.fetchall()
+        print(result, r2)
+        return result+r2
             
             
     def viewbypname(self, pname):

@@ -5,7 +5,7 @@ from database import Sign
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Sign Up")
-        Dialog.setFixedSize(638, 441)
+        Dialog.setFixedSize(640, 440)
 
 
         self.label_1 = QtWidgets.QLabel(Dialog)
@@ -57,36 +57,30 @@ class Ui_Dialog(object):
         self.txtphone.setObjectName("txtphone")
         
         self.txtPassword = QtWidgets.QLineEdit(Dialog)
-        ################## make the password invisible ############
+
         self.txtPassword.setEchoMode(QtWidgets.QLineEdit.Password)
-        ###########################################################
+
         self.txtPassword.setGeometry(QtCore.QRect(290, 300, 151, 21))
         self.txtPassword.setObjectName("txtPassword")
         
         self.txtPassword2 = QtWidgets.QLineEdit(Dialog)
-        ################## make the password2 invisible ############
+
         self.txtPassword2.setEchoMode(QtWidgets.QLineEdit.Password)
-        ###########################################################
+
         self.txtPassword2.setGeometry(QtCore.QRect(290, 330, 151, 21))
         self.txtPassword2.setObjectName("txtPassword2")
         
         self.btnRegister = QtWidgets.QPushButton(Dialog)
         self.btnRegister.setGeometry(QtCore.QRect(240, 380, 131, 41))
         self.btnRegister.setObjectName("btnRegister")
-        ################## register button#########################
+
         self.btnRegister.clicked.connect(self.registerButton)
-        ###########################################################
+
         self.label_Heading = QtWidgets.QLabel(Dialog)
         self.label_Heading.setGeometry(QtCore.QRect(120, 30, 431, 61))
         self.label_Heading.setObjectName("label_Heading")
         
-        '''
 
-        
-        self.txtName = QtWidgets.QLineEdit(Dialog)
-        self.txtName.setGeometry(QtCore.QRect(290, 150, 221, 27))
-        self.txtName.setObjectName("txtName")
-        '''
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -113,7 +107,7 @@ class Ui_Dialog(object):
     def showMessage(self,title,msg):
         msgBox = QtWidgets.QMessageBox()
         msgBox.setIcon(QtWidgets.QMessageBox.Information)
-        #msgBox.setTitle(title)
+
         msgBox.setText(msg)
         msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msgBox.exec_()
@@ -143,11 +137,11 @@ class Ui_Dialog(object):
             return True
         
 
-    ############## check if password1 and password2 matches #############
+
     def checkPassword(self,password1, password2):
         return password1 == password2
 
-    ##################### clear fields ##################
+
     def clearField(self):
         self.txtfname.setText(None)
         self.txtlname.setText(None)
