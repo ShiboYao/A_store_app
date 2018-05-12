@@ -12,7 +12,7 @@ This project implements a desktop application for online sale store. It has some
 * Summary of set up \
 Python 3.6 \
 Ubuntu 16.04 \
-PyQY 5 \
+PyQt 5 \
 PyMySQL \
 MySQL 
 
